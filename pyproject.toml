@@ -17,7 +17,11 @@ classifiers = [
   "Programming Language :: Python"
 ]
 dependencies = [
-  "roman-snpit-snappl>0.48.0",
+  # TODO : make this >0.48.0 (maybe later to be bumped again); right now,
+  #   because of the chicken-and-egg problem in the snappl github workflow,
+  #   we have to have no version here.
+  # "roman-snpit-snappl>0.48.0",
+  "roman-snpit-snappl",
   # NOTE : we pin galsim at 2.8.4 because version 2.8.5 causes regression failures in
   #  (at least) snappl and campari.  If we want to bump to higher galsim, then we're
   #  going to have to deal with changing all those tests.
@@ -41,7 +45,9 @@ test = [
     "pytest-cov",
     "requests",
     "tox",
-    "devpi_process"
+    "devpi_process",
+    "psycopg>=3.2.9,<4.0.0",
+    "roman-snpit-snappl-imagesimulator"
 ]
 docs = [
     "sphinx",
