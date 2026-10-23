@@ -80,7 +80,7 @@ jobs:
           cd ..
           git clone https://github.com/Roman-Supernova-PIT/snappl_imagesimulator.git
           cd snappl_imagesimulator
-          git checkout u/rknop/initialize
+          git checkout initialize
           cd ..
           #### END OF CHICKEN AND EGG NOTE part 1
           cd environment/test-docker-environment
