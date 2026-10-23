@@ -3,6 +3,7 @@ import pytest
 import pathlib
 import simplejson
 
+import numpy as np
 import psycopg
 
 import tox # noqa: F401
@@ -134,6 +135,57 @@ def loaded_ou2024_test_diaobjects():
             dbcon.execute( "DELETE FROM provenance WHERE process='import_ou2024_diaobjects'" )
             dbcon.execute( "DELETE FROM provenance WHERE process='ou2024_diaobjects_truth_copy'" )
             dbcon.commit()
+
+
+@pytest.fixture( scope='module' )
+def check_wcs():
+    def wcs_checker( wcs, testdata=None, arcsecprecision=0.01, invabs=0.1 ):
+        if testdata is None:
+            # This default test data is for ou2024image
+            # The hardcoded values are empirical.  I've used DS9 on the test
+            # image to verify that they're good to at least ~5 decimal places.
+            testdata = [ { 'x': 0, 'y': 0, 'ra': 7.49435552, 'dec': -44.95508301 },
+                         { 'x': 4087, 'y': 4087, 'ra': 7.58168925, 'dec': -44.79212825 },
+                         { 'x': 0, 'y': 4087, 'ra': 7.42167102, 'dec': -44.84398918   },
+                         { 'x': 4087, 'y': 0, 'ra': 7.65461745, 'dec': -44.90311993 },
+                         { 'x': 2043.5, 'y': 2043.5, 'ra': 7.53808422, 'dec': -44.87361374 } ]
+
+        # Check passing scalars of (x,y) or (ra,dec)
+        for data in testdata:
+            ra, dec = wcs.pixel_to_world( data['x'], data['y'] )
+            assert isinstance( ra, float )
+            assert isinstance( dec, float )
+            assert ra == pytest.approx( data['ra'], abs=arcsecprecision/3600./np.cos(data['dec'] * np.pi/180.))
+            assert dec == pytest.approx( data['dec'], abs=arcsecprecision/3600. )
+
+            # ...I would have expected better than the default of 0.1
+            # pixels, but empirically the WCS as compared to the inverse
+            # WCS are only good to several hundreths of a pixel.
+            x, y = wcs.world_to_pixel( data['ra'], data['dec'] )
+            assert isinstance( x, float )
+            assert isinstance( y, float )
+            assert x == pytest.approx( data['x'], abs=invabs )
+            assert y == pytest.approx( data['y'], abs=invabs )
+
+        # Check passing arrays of (x,y) or (ra,dec)
+        xvals = np.array( [ t['x'] for t in testdata ] )
+        yvals = np.array( [ t['y'] for t in testdata ] )
+        ravals = np.array( [ t['ra'] for t in testdata ] )
+        decvals = np.array( [ t['dec'] for t in testdata ] )
+
+        ras, decs = wcs.pixel_to_world( xvals, yvals )
+        assert isinstance( ras, np.ndarray )
+        assert isinstance( decs, np.ndarray )
+        assert np.all( ras == pytest.approx(ravals, abs=arcsecprecision/3600./np.cos(decs[0] * np.pi/180.) ) )
+        assert np.all( decs == pytest.approx(decvals, abs=arcsecprecision/3600. ) )
+
+        xs, ys = wcs.world_to_pixel( ravals, decvals )
+        assert isinstance( xs, np.ndarray )
+        assert isinstance( ys, np.ndarray )
+        assert np.all( xs == pytest.approx( xvals, abs=0.1 ) )
+        assert np.all( ys == pytest.approx( yvals, abs=0.1 ) )
+
+    return wcs_checker
 
 
 @pytest.fixture( scope='session' )
