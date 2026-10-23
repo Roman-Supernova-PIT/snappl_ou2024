@@ -6,7 +6,7 @@ import tempfile
 
 from astropy.io import fits  # noqa: F401
 
-from snappl.sed import OU2024_Truth_SED, Single_CSV_SED
+from snappl_ou2024.sed import OU2024_Truth_SED, Single_CSV_SED
 
 
 def test_ou24_get_sn_sed():

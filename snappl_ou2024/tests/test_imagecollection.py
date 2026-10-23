@@ -2,9 +2,9 @@ import pathlib
 import pytest
 import numpy as np
 
-import snappl.image
+import snappl_ou2024.image
 from snappl.imagecollection import ImageCollection
-from snappl_ou2024 import ImageCollectionOU2024
+from snappl_ou2024.imagecollection import ImageCollectionOU2024
 from snappl.config import Config
 
 
@@ -31,7 +31,7 @@ def test_imagecollectionou2024_get_image():
     expectedpath = ( pathlib.Path( cfg.value('system.ou24.images') )
                      / 'Y106/13205/Roman_TDS_simple_model_Y106_13205_1.fits.gz' )
     img1 = col.get_image( path=expectedpath )
-    assert isinstance( img1, snappl.image.OpenUniverse2024FITSImage )
+    assert isinstance( img1, snappl_ou2024.image.OpenUniverse2024FITSImage )
     hdr = img1.get_fits_header()
     assert img1.path == expectedpath
     hdr = img1.get_fits_header()

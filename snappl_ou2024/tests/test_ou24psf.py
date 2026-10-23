@@ -7,10 +7,10 @@ from astropy.io import fits  # noqa: F401
 from photutils.psf import ImagePSF
 from scipy.ndimage import center_of_mass
 
-import snappl.psf
+import snappl_ou2024.psf
 from snappl.psf import PSF
 from snappl.imagecollection import ImageCollection
-from snappl.image_simulator import get_galaxy_stamp
+from snappl_imagesimulator.image_simulator import get_galaxy_stamp
 
 
 def test_slow_normalization():
@@ -67,7 +67,7 @@ def test_slow_normalization_nophotshoot():
 
 def test_slow_get_stamp():
     psfobj = PSF.get_psf_object( "ou24PSF_slow_photonshoot", observation_id='6', sca=17, stamp_size=41. )
-    assert isinstance( psfobj, snappl.psf.ou24PSF_slow_photonshoot )
+    assert isinstance( psfobj, snappl_ou2024.psf.ou24PSF_slow_photonshoot )
 
     # It's slow getting galsim PSFs with photon ops, so we're not going to
     #   do as exhaustive of tets as we do for OversampledImagePSF.  Use
@@ -148,7 +148,7 @@ def test_slow_get_photutilspsf():
 # def test_get_stamp():
 #     # Use the defaults, which will be an internal image of size 201 and a stamp size of 41
 #     psfobj = PSF.get_psf_object( "ou24PSF", observation_id='6', sca=17, oversample_factor=11,  oversampled_size=451 )
-#     assert isinstance( psfobj, snappl.psf.ou24PSF )
+#     assert isinstance( psfobj, snappl_ou2024.psf.ou24PSF )
 #
 #     # Try a basic centered PSDF
 #     stamp = psfobj.get_stamp()
@@ -290,10 +290,10 @@ def test_set_wcs():
     # For some testing and simulation cases, we want to be able to set the WCS of the PSF manually.
     # This is a test that this works.
     psfobj_1 = PSF.get_psf_object("ou24PSF", observation_id='6', sca=17, stamp_size=41.0)
-    assert isinstance(psfobj_1, snappl.psf.ou24PSF)
+    assert isinstance(psfobj_1, snappl_ou2024.psf.ou24PSF)
 
     psfobj_2 = PSF.get_psf_object("ou24PSF", observation_id='5934', sca=3, stamp_size=41.0)
-    assert isinstance(psfobj_2, snappl.psf.ou24PSF)
+    assert isinstance(psfobj_2, snappl_ou2024.psf.ou24PSF)
 
     psfobj_1.get_stamp( seed=42 )
     psfobj_2.get_stamp( seed=42 )
