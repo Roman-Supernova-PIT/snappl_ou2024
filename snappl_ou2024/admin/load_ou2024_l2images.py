@@ -6,7 +6,7 @@ import argparse
 
 import psycopg
 
-from snappl.image import OpenUniverse2024FITSImage
+from snappl_ou2024.image import OpenUniverse2024FITSImage
 from snappl.logger import SNLogger
 from snappl.utils import asUUID
 from snappl.provenance import Provenance
