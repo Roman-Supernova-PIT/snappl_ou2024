@@ -1,0 +1,108 @@
+name: Run SNAPPL Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: run snappl tests in docker container
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Dump docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v2
+
+      - name: checkout code
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: run ruff
+        uses: astral-sh/ruff-action@v3
+
+      - name: checkout photometry test data
+        run: |
+          cd ..
+          mkdir packages
+          cd packages
+          git clone http://github.com/Roman-Supernova-PIT/photometry_test_data
+
+      - name: log into github container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: cleanup
+        run: |
+          # try to save HDD space on the runner by removing some unneeded stuff (~8GB)
+          # ref: https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
+          # (For some perverse reason, this step seems to take 1.5-2 minutes on github runners!
+          # For that reason, this is commented out, for now.  Uncomment it if we run into trouble.)
+          df -h
+          # echo "------"
+          # sudo rm -rf /usr/share/dotnet
+          # sudo rm -rf /opt/ghc
+          # sudo rm -rf "/usr/local/share/boost"
+          # sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          # echo "------"
+          # df -h
+
+      - name: pull environment archive
+        run: |
+          cd ../packages
+          git clone https://github.com/Roman-Supernova-PIT/environment.git
+
+      - name: pull docker images
+        run: |
+          cd ../packages/environment/test-docker-environment
+          docker compose pull mailhog postgres webserver shell
+
+      - name: run test
+        run: |
+          # These actions start in the snappl checkout, so go up one to
+          # get to where it was checked out
+          cd ..
+          # test environment expects then snappl checkout to be in the packages subdir
+          mv snappl_ou2024 packages/
+          cd packages
+          #### CHICKEN AND EGG NOTE part 1
+          # See part 2 below
+          git clone https://github.com/Roman-Supernova-PIT/snappl.git
+          cd snappl
+          git checkout u/rknop/snappl_subpackages
+          cd ..
+          git clone https://github.com/Roman-Supernova-PIT/snappl_imagesimulator.git
+          cd snappl_imagesimulator
+          git checkout initialize
+          cd ..
+          #### END OF CHICKEN AND EGG NOTE part 1
+          cd environment/test-docker-environment
+          docker compose up -d webserver shell
+          #### CHICKEN AND EGG NOTE part 2
+          # Eventually, we should just let the snappl_ou2024
+          #   dependencies install latest snappl, but right now the
+          #   latest snappl is pre-snappl_ou2024 breakout.  Once
+          #   both packages have been released on PyPi, we chan change
+          #   this.
+          docker compose exec shell bash -c 'cd /packages/snappl && pip install -e .'
+          docker compose exec shell bash -c 'cd /packages/snappl_imagesimulator && pip install -e .'
+          #### END OF CHICKEN AND EGG NOTE part 2
+          docker compose exec shell bash -c 'cd /packages/snappl_ou2024 && pip install -e .[test]'
+          docker compose exec shell bash -c 'cd /packages/snappl_ou2024/snappl_ou2024/tests && pytest -v'
+          docker compose down -v
+          # move the snappl_ou2024 checkout back to where further github
+          # actions will expect it.  (TODO: see if there's a way we
+          # can tell the workflow that snappl is checked out in
+          # $WHATEVER/packages/snappl, not just $WHATEVER/snappl.)
+          cd ../../
+          mv snappl_ou2024 ../
+          cd ..
+          pwd
+          ls -l

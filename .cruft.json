@@ -1,0 +1,36 @@
+{
+  "template": "https://github.com/Roman-Supernova-PIT/package-template",
+  "commit": "5e23a6e4b8bea8141faae5016de8ec781d1cf727",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "package_name": "roman_snpit_snappl_ou2024",
+      "module_name": "snappl_ou2024",
+      "github_snpit_repo_name": "snappl_ou2024",
+      "short_description": "OU2024 extensions to snappl",
+      "author_name": "Roman Supernova Project Infrastructure Team",
+      "author_email": "raknop@lbl.gov",
+      "github_username": "rknop",
+      "minimum_python_version": "3.11",
+      "use_compiled_extensions": "n",
+      "include_example_code": "n",
+      "include_github_workflows": "n",
+      "autoformat_code": "n",
+      "_project_url": "https://github.com/Roman-Supernova-PIT",
+      "_pit_github_org": "Roman-Supernova-PIT",
+      "_pit_name": "Roman Supernova Project Infrastructure Team",
+      "_sphinx_theme": "alabaster",
+      "_parent_project": "",
+      "install_requires": "",
+      "_copy_without_render": [
+        "docs/_templates",
+        "docs/_static",
+        ".github/workflows",
+        ".github/"
+      ],
+      "_template": "https://github.com/Roman-Supernova-PIT/package-template",
+      "_commit": "5e23a6e4b8bea8141faae5016de8ec781d1cf727"
+    }
+  },
+  "directory": null
+}
