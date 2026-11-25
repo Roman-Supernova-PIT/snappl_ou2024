@@ -49,7 +49,8 @@ class GalsimWCS(BaseWCS):
         # Galsim WCSes are 1-indexed
         ra, dec = self._gsimwcs.toWorld( x+1, y+1, units='deg' )
         # Decide by dimensionality, not size: a 1-element array is still an array,
-        #  and numpy refuses float() on arrays with ndim > 0.
+        #  and numpy refuses float() on arrays with ndim > 0. This causes
+        # campari to break. -Cole
         if np.ndim( x ) == 0:
             ra = float( ra )
             dec = float( dec )
