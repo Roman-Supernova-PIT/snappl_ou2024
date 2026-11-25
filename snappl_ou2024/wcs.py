@@ -48,9 +48,9 @@ class GalsimWCS(BaseWCS):
             y = np.array( y )
         # Galsim WCSes are 1-indexed
         ra, dec = self._gsimwcs.toWorld( x+1, y+1, units='deg' )
-        if not ( isinstance( x, collections.abc.Sequence )
-                 or ( isinstance( x, np.ndarray ) and ra.size > 1 )
-                ):
+        # Decide by dimensionality, not size: a 1-element array is still an array,
+        #  and numpy refuses float() on arrays with ndim > 0.
+        if np.ndim( x ) == 0:
             ra = float( ra )
             dec = float( dec )
         return ra, dec
@@ -63,9 +63,7 @@ class GalsimWCS(BaseWCS):
         # Convert from 1-indexed galsim pixel coordaintes to 0-indexed
         x -= 1
         y -= 1
-        if not ( isinstance( ra, collections.abc.Sequence )
-                 or ( isinstance( ra, np.ndarray ) and y.size > 1 )
-                ):
+        if np.ndim( ra ) == 0:
             x = float( x )
             y = float( y )
         return x, y
